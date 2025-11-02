@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+TMPFILE=`mktemp -t catr.XXXXXXXXXX`
+ls -1AN>$TMPFILE
+lines=`cat $TMPFILE|wc -l`
+for (( i=1; i<=$lines; i++ )); do
+	thing=`sed "${i}q;d" $TMPFILE`
+	if [[ -d "$thing" ]];then
+		cd "$thing"
+		catr
+		cd - >/dev/null
+	else
+		cat "$thing"
+	fi
+done
+rm  $TMPFILE
