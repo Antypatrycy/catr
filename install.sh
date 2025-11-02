@@ -7,7 +7,7 @@ if [[ `whoami` != "root" ]];then
 fi
 
 if [[ ! -f catr ]];then
-	echo "Didn't find a copy of catr in `pwd`"
+	echo "Didn't find a copy of catr in $PWD"
 	exit 1
 fi
 
