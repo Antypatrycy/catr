@@ -1,16 +1,32 @@
 #!/usr/bin/env bash
 set -euo pipefail
-TMPFILE=`mktemp -t catr.XXXXXXXXXX`
-ls -1AN>$TMPFILE
-lines=`cat $TMPFILE|wc -l`
-for (( i=1; i<=$lines; i++ )); do
-	thing=`sed "${i}q;d" $TMPFILE`
-	if [[ -d "$thing" ]];then
-		cd "$thing"
-		catr
-		cd - >/dev/null
+arguments=$@ #use a different variable so we can modify it
+if [[ $arguments == "" ]];then # if no command arguments are given assume "."
+arguments="."
+fi
+
+here=$PWD #save where you are
+
+for argument in $arguments #loop thru all the options
+do
+	if [[ -f "$argument" ]];then
+		cat "$argument"
 	else
-		cat "$thing"
+		cd "$argument" #enter into the given directory
+		tmpfile=`mktemp -t catr.XXXXXXXXXX` #generate a temporary file
+		ls -1AN>$tmpfile #we use `ls` becouse * and .* don't work with filnames with spaces
+		lines=`cat $tmpfile|wc -l` #how long is the file
+		for (( i=1; i<=$lines; i++ )); do #c style for loop cause only it works with a variable
+			file_or_dir=`sed "${i}q;d" $tmpfile` #read a line form a the temporary filefile
+			if [[ -d "$file_or_dir" ]];then #if it's a directory do the whole recursion thing
+				cd "$file_or_dir"
+				catr . #the recursive bit
+				cd - >/dev/null
+			else
+				cat "$file_or_dir" #if it's not a file try to read it
+			fi
+		done
+		rm $tmpfile #remove our temporary file
+		cd $here #go back to where you were so that the program works with multiple arguments
 	fi
 done
-rm  $TMPFILE
