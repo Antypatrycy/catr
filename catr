@@ -23,7 +23,7 @@ do
 				catr . #the recursive bit
 				cd - >/dev/null
 			else
-				cat "$file_or_dir" #if it's not a file try to read it
+				cat "$file_or_dir" #if it's not a directory try to read it
 			fi
 		done
 		rm $tmpfile #remove our temporary file
